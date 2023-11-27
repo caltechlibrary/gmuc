@@ -1,4 +1,4 @@
-name: CodeMeta2CFF
+name: Run CodeMeta2CFF
 run-name: Run CodeMeta2CFF after ${{github.event_name}} by ${{github.actor}}
 
 on:
