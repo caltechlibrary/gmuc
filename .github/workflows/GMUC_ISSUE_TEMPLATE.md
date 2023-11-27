@@ -4,5 +4,6 @@ labels: ['bug']
 assignees: ''
 ---
 
-The [GitHub Markdown URL Checker]({{env.WORKFLOW_FILE}})
-- {{env.BROKEN_LINKS}}
+The GitHub Markdown URL Checker found that the file {{env.FILE_CHECKED}} contains the following invalid URLs:
+
+{{env.BROKEN_LINKS}}

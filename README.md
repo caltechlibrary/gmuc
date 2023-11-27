@@ -22,7 +22,9 @@ A GitHub Actions workflow that checks the URLs in links inside Markdown files at
 
 ## Introduction
 
-[Bad link text](https://goes.nowhere)
+[Bad link 1](https://goes.nowhere)
+[Bad link 2](https://also.goes.nowhere)
+[Bad link 3](https://another.nowhere)
 
 ## Installation
 

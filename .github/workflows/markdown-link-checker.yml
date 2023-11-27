@@ -34,32 +34,26 @@ jobs:
       - name: Check out source repository
         uses: actions/checkout@v3
 
-      - name: Gather links from the README.md file
-        id: get-links
+      - name: Check the links in the README.md file
         run: |
-          LINKS=$(sed -r -e 's/\[/\n[/g' README.md  | sed -r -e 's/.*(\[.*\]\(.*\)).*/\n\1/g' | grep -oE '\[.*\]\(.*\)' | sed -r -e 's/.*\(([^)]+)\).*/\1/g' | g -v '^#' | g http | paste -sd ,)
-          echo "WEBSITE_URL=$LINKS" >> $GITHUB_ENV
-
-      - name: Check the links for validity
-        run: |
-          # Split the list of links into an array separated by commas
-          read -ra LINKS <<< "$WEBSITE_URL"
-          BROKEN_LINKS=()
+          # Note: "paste" here is GNU paste, not /usr/bin/paste on macOS.
+          # On macOS, you need to install the GNU utils and use gpaste.
+          read -ra URLS <<< $(sed -r -e 's/\[/\n[/g' README.md | sed -r -e 's/.*(\[.*\]\(.*\)).*/\n\1/g' | grep -oE '\[.*\]\(.*\)' | sed -r -e 's/.*\(([^)]+)\).*/\1/g' | grep http | paste -sd ' ')
 
           # Scan the links and verify if they are reachable
-          for link in "${LINKS[@]}"; do
-            if [[ $link =~ ^(http|https):// ]]; then
-              # Scan the links and verify if they are reachable
-              if ! curl -IsSk "$link" > /dev/null; then
-                BROKEN_LINKS+=("$link")
-              fi
+          BROKEN_LINKS=()
+          for url in "${URLS[@]}"; do
+            echo "Testing $url ...";
+            if ! curl -IsSk "$url" > /dev/null; then
+              BROKEN_LINKS+=("$url")
             fi
           done
           if [ ${#BROKEN_LINKS[@]} -gt 0 ]; then
             echo "Broken links found: ${BROKEN_LINKS[@]}" >&2
-            BROKEN_LINKS_STRING=$(echo "${BROKEN_LINKS[@]}" | tr '\n' ';')
+            BROKEN_LINKS_STRING="<ul>"
+            BROKEN_LINKS_STRING+=$(printf "<li><code>%s</code></li>" "${BROKEN_LINKS[@]}")
+            BROKEN_LINKS_STRING+="</ul>"
             echo "BROKEN_LINKS=$BROKEN_LINKS_STRING" >> $GITHUB_ENV
-            echo "Broken links found:  ${BROKEN_LINKS[@]}"
             exit 1
           else
             echo "No broken links found."
@@ -70,7 +64,6 @@ jobs:
         if: failure()
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-          WORKFLOW_FILE: ${{env.GITHUB_WORKFLOW}}
           FILE_CHECKED: 'README.md'
         with:
           filename: ${{env.GMUC_ISSUE_TEMPLATE}}
