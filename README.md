@@ -22,6 +22,8 @@ A GitHub Actions workflow that checks the URLs in links inside Markdown files at
 
 ## Introduction
 
+[Bad link text](https://goes.nowhere)
+
 ## Installation
 
 ## Usage
