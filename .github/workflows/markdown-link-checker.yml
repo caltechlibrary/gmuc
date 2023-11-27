@@ -1,0 +1,65 @@
+# @file    markdown-link-checker.yml
+# @brief   GitHub Actions workflow to check the README file for broken links
+# @license Please see the file named LICENSE in the repository
+# @repo    https://github.com/caltechlibrary/iga
+#
+# This file was originally based on code obtained 2023-11-26 from
+# https://github.com/saver999/Broken-Links-Checker
+
+name: Check README for broken links
+run-name: Check README for broken links after ${{github.event_name}} by ${{github.actor}}
+
+on: [push, pull_request, workflow_dispatch]
+
+env:
+  ISSUE_TEMPLATE: ".github/workflows/ISSUE_TEMPLATE.md"
+  contents: read
+  issues: write
+
+jobs:
+  check-urls:
+    name: Check URLs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v3
+
+      - name: Gather links from the README.md file
+        id: get-links
+        run: |
+          LINKS=$(sed -r -e 's/\[/\n[/g' README.md  | sed -r -e 's/.*(\[.*\]\(.*\)).*/\n\1/g' | grep -oE '\[.*\]\(.*\)' | sed -r -e 's/.*\(([^)]+)\).*/\1/g' | g -v '^#' | g http | paste -sd ,)
+          echo "WEBSITE_URL=$LINKS" >> $GITHUB_ENV
+
+      - name: Check the links for validity
+        run: |
+          # Split the list of links into an array separated by commas
+          read -ra LINKS <<< "$WEBSITE_URL"
+          BROKEN_LINKS=()
+
+          # Scan the links and verify if they are reachable
+          for link in "${LINKS[@]}"; do
+            if [[ $link =~ ^(http|https):// ]]; then
+              # Scan the links and verify if they are reachable
+              if ! curl -IsSk "$link" > /dev/null; then
+                BROKEN_LINKS+=("$link")
+              fi
+            fi
+          done
+          if [ ${#BROKEN_LINKS[@]} -gt 0 ]; then
+            echo "Broken links found: ${BROKEN_LINKS[@]}" >&2
+            BROKEN_LINKS_STRING=$(echo "${BROKEN_LINKS[@]}" | tr '\n' ';')
+            echo "BROKEN_LINKS=$BROKEN_LINKS_STRING" >> $GITHUB_ENV
+            echo "Broken links found:  ${BROKEN_LINKS[@]}"
+            exit 1
+          else
+            echo "No broken links found."
+          fi
+
+      - name: Create a new issue for the broken links
+        uses: JasonEtco/create-an-issue@v2
+        if: failure()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          filename: ${{ env.ISSUE_TEMPLATE }}
