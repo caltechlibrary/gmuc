@@ -9,7 +9,16 @@
 name: Check README for broken links
 run-name: Check README for broken links after ${{github.event_name}} by ${{github.actor}}
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    paths:
+      - 'README.md'
+  pull_request:
+    paths:
+      - 'README.md'
+  workflow_dispatch:
+    paths:
+      - 'README.md'
 
 env:
   ISSUE_TEMPLATE: ".github/workflows/ISSUE_TEMPLATE.md"
