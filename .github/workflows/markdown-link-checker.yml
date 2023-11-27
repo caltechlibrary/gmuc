@@ -21,7 +21,7 @@ on:
       - 'README.md'
 
 env:
-  ISSUE_TEMPLATE: ".github/workflows/ISSUE_TEMPLATE.md"
+  GMUC_ISSUE_TEMPLATE: '.github/workflows/GMUC_ISSUE_TEMPLATE.md'
   contents: read
   issues: write
 
@@ -69,6 +69,8 @@ jobs:
         uses: JasonEtco/create-an-issue@v2
         if: failure()
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          WORKFLOW_FILE: ${{env.GITHUB_WORKFLOW}}
+          FILE_CHECKED: 'README.md'
         with:
-          filename: ${{ env.ISSUE_TEMPLATE }}
+          filename: ${{env.GMUC_ISSUE_TEMPLATE}}
