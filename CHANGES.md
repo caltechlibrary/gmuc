@@ -1,7 +1,5 @@
-# Change log for REPOSITORY
+# Change log for GMUC
 
 ## Version 0.0.0
 
-* Write about a change here
-* Write about another change here
-* Write about a 3rd change
+Repository created by [Mike Hucka](https://github.com/mhucka).
