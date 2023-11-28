@@ -3,67 +3,76 @@
 # @license Please see the file named LICENSE in the repository
 # @repo    https://github.com/caltechlibrary/iga
 #
-# This file was originally based on code obtained 2023-11-26 from
-# https://github.com/saver999/Broken-Links-Checker
+# Inspired by https://github.com/saver999/Broken-Links-Checker (2023-11-26).
 
-name: Check README for broken links
-run-name: Check README for broken links after ${{github.event_name}} by ${{github.actor}}
+name: Check Markdown files for broken links
+run-name: Checking Markdown files for broken links after ${{github.event_name}} action by ${{github.actor}}
 
 on:
   push:
     paths:
-      - 'README.md'
+      - '*.md'
   pull_request:
     paths:
-      - 'README.md'
+      - '*.md'
   workflow_dispatch:
     paths:
-      - 'README.md'
+      - '*.md'
 
 env:
-  GMUC_ISSUE_TEMPLATE: '.github/workflows/GMUC_ISSUE_TEMPLATE.md'
-  contents: read
-  issues: write
+  labels: bug
 
 jobs:
   check-urls:
-    name: Check URLs
+    name: Check URLs in Markdown files
     runs-on: ubuntu-latest
-
     steps:
       - name: Check out source repository
         uses: actions/checkout@v3
 
-      - name: Check the links in the README.md file
+      - name: Test URLs found in links inside Markdown files
         run: |
           # Note: "paste" here is GNU paste, not /usr/bin/paste on macOS.
           # On macOS, you need to install the GNU utils and use gpaste.
-          read -ra URLS <<< $(sed -r -e 's/\[/\n[/g' README.md | sed -r -e 's/.*(\[.*\]\(.*\)).*/\n\1/g' | grep -oE '\[.*\]\(.*\)' | sed -r -e 's/.*\(([^)]+)\).*/\1/g' | grep http | paste -sd ' ')
+          exit_code=0
+          issue_text=""
+          for file in *.md; do
+            echo "Checking URLs in file $file ..."
+            read -ra URLS <<< $(sed -r -e 's/\[/\n[/g' $file | sed -r -e 's/.*(\[.*\]\(.*\)).*/\n\1/g' | grep -oE '\[.*\]\(.*\)' | sed -r -e 's/.*\(([^)]+)\).*/\1/g' | grep http | paste -sd ' ')
 
-          # Scan the links and verify if they are reachable
-          BROKEN_LINKS=()
-          for url in "${URLS[@]}"; do
-            echo "Testing $url ...";
-            if ! curl -IsSk "$url" > /dev/null; then
-              BROKEN_LINKS+=("$url")
+            # Scan the links and verify if they are reachable.
+            bad_urls=()
+            for url in "${URLS[@]}"; do
+              echo "Testing $url ...";
+              if ! curl -IsSk "$url" > /dev/null; then
+                bad_urls+=("$url")
+              fi
+            done
+            # Construct issue body if we found any problems.
+            if [ ${#bad_urls[@]} -gt 0 ]; then
+              if [ ${#bad_urls[@]} -gt 1 ]; then
+                plural="s"
+              else
+                plural=""
+              fi
+              echo "Broken links found in $file" >&2
+              issue_text+="<h3>Found ${#bad_urls[@]} invalid URL$plural in <code>$file</code></h3>"
+              issue_text+="<ul>"
+              issue_text+=$(printf "<li><code>%s</code></li>" "${bad_urls[@]}")
+              issue_text+="</ul><br>"
+              exit_code=1
+            else
+              echo "No broken links found in $file" >&2
             fi
           done
-          if [ ${#BROKEN_LINKS[@]} -gt 0 ]; then
-            echo "Broken links found: ${BROKEN_LINKS[@]}" >&2
-            BROKEN_LINKS_STRING="<ul>"
-            BROKEN_LINKS_STRING+=$(printf "<li><code>%s</code></li>" "${BROKEN_LINKS[@]}")
-            BROKEN_LINKS_STRING+="</ul>"
-            echo "BROKEN_LINKS=$BROKEN_LINKS_STRING" >> $GITHUB_ENV
-            exit 1
-          else
-            echo "No broken links found."
-          fi
+          echo "issue_text=$issue_text" >> $GITHUB_ENV
+          exit $exit_code
 
       - name: Create a new issue for the broken links
-        uses: JasonEtco/create-an-issue@v2
+        uses: dacbd/create-issue-action@v1
         if: failure()
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-          FILE_CHECKED: 'README.md'
         with:
-          filename: ${{env.GMUC_ISSUE_TEMPLATE}}
+          token: ${{secrets.GITHUB_TOKEN}}
+          title: GitHub Markdown URL Checker workflow found invalid URLs
+          body: ${{env.issue_text}}
+          labels: ${{env.labels}}
