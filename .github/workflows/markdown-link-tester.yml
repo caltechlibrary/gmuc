@@ -27,7 +27,7 @@ env:
 
   # List of URLs to ignore (e.g., because they're just examples in docs).
   # Write all URLs in one string, with commas to separate URLs.
-  ignore_urls: 'https://ignore.ignore'
+  ignore_urls: ''
 
   # Label assigned to issues created by this workflow.
   labels: bug
