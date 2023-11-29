@@ -52,6 +52,7 @@ jobs:
               -e 's/{.*$//g' \
               -e 's/| Failed:/– Failed:/g' \
               -e 's/^\[Full Github.*//' \
+              -e 's/\(.*\)\[\(.*\)\]\(.*\)/\1[`\2`]\3/' \
               < lychee/out.md > lychee/report.md
 
       - name: Create a new issue for the broken links
@@ -59,6 +60,6 @@ jobs:
         uses: peter-evans/create-issue-from-file@v4
         with:
           token: ${{secrets.GITHUB_TOKEN}}
-          title: Broken links in Markdown files
+          title: Invalid URLs in Markdown files
           content-filepath: ./lychee/report.md
           labels: ${{env.labels}}
