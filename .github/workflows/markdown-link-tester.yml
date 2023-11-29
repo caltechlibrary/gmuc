@@ -85,11 +85,21 @@ jobs:
               -e 's/\(.*\)\[\(.*\)\]\(.*\)/\1[`\2`]\3/' \
               < lychee/out.md > lychee/report.md
 
-      - name: Create a new issue to report the problems
+      - name: Open a new issue/ticket to report the problems
         if: env.lychee_exit_code != 0
+        id: create-issue
         uses: peter-evans/create-issue-from-file@v4
         with:
           token: ${{secrets.GITHUB_TOKEN}}
           title: Invalid URLs in Markdown files
           content-filepath: ./lychee/report.md
           labels: ${{env.labels}}
+
+      - name: Put a link to the issue in the workflow output
+        if: env.lychee_exit_code != 0
+        with:
+          issue-number: ${{steps.create-issue.outputs.issue-number}}
+        run: |
+          echo "## Invalid URLs found" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Ticket [#${{env.issue-number}}](https://github.com/${{github.repository}}/issues/${{env.issue-number}}) has been created." >> $GITHUB_STEP_SUMMARY
