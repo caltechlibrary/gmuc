@@ -23,14 +23,16 @@
 
 env:
   # Markdown files examined by the workflow. Can be a comma-separated list.
+  # Example: '*.md'
   files: '*.md'
 
   # List of URLs to ignore (e.g., because they're just examples in docs).
   # Write all URLs in one string, with commas to separate URLs.
-  ignore_urls: 'https://ignore.ignore'
+  # Example: 'https://foo.bar,https://bar.biff'
+  ignore_urls: ''
 
   # Label assigned to issues created by this workflow.
-  labels: bug
+  labels: 'bug'
 
 # ╭────────────────────────────────────────────────────────────────╮
 # │ The rest of this file should not need modification.            │
@@ -74,9 +76,11 @@ jobs:
       - name: Configure link checker
         run: |
           touch .lycheeignore
-          for url in ${{env.ignore_urls}}; do
-            echo "$url" >> .lycheeignore
-          done
+          if [ -n "${{env.ignore_urls}}" ]; then
+            for url in ${{env.ignore_urls}}; do
+              echo "$url" >> .lycheeignore
+            done
+          fi
 
       - name: Test URLs found inside Markdown files
         uses: lycheeverse/lychee-action@v1.8.0
