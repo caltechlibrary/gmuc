@@ -6,3 +6,4 @@ Links:
 
 [good](https://github.com)
 [bad](https://foo.abc)
+[ignored](https://ignore.ignore)
