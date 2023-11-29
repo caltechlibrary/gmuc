@@ -48,12 +48,12 @@ jobs:
       - name: Get results
         if: env.lychee_exit_code != 0
         id: get_results
-        run: echo "report=$(<lychee/results.md)" >> $GITHUB_OUTPUT
+        run: echo "report=$(<lychee/out.md)" >> $GITHUB_OUTPUT
 
       - name: Create a new issue for the broken links
         if: env.lychee_exit_code != 0
         uses: dacbd/create-issue-action@v1
         with:
           token: ${{secrets.GITHUB_TOKEN}}
-          title: Broken links found in Markdown files
+          title: Broken links in Markdown files
           body: ${{steps.get_results.outputs.report}}
