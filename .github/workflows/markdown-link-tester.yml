@@ -48,7 +48,7 @@ jobs:
       - name: Get results
         if: env.lychee_exit_code != 0
         id: get_results
-        run: echo "report=$(<lychee/out.md)" >> $GITHUB_OUTPUT
+        run: echo "report=\"$(<lychee/out.md)\"" >> $GITHUB_OUTPUT
 
       - name: Create a new issue for the broken links
         if: env.lychee_exit_code != 0
