@@ -48,7 +48,7 @@ jobs:
       - name: Post-process the output
         if: env.lychee_exit_code != 0
         run: |
-          sed -e 's/^## Summary//' -e 's/^|.*//g' < lychee/out.md > lychee/report.md
+          sed -e 's/^## Summary//' -e 's/^|.*//g' -e 's/^## Errors per input//' < lychee/out.md > lychee/report.md
 
       - name: Create a new issue for the broken links
         if: env.lychee_exit_code != 0
