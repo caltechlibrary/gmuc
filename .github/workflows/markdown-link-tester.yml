@@ -52,6 +52,7 @@ jobs:
               -e 's/^|.*//g' \
               -e 's/^## Errors per input//' \
               -e 's/{.*$/|/g' \
+              -e 's/^\[Full Github.*//' \
               < lychee/out.md > lychee/report.md
 
       - name: Create a new issue for the broken links
