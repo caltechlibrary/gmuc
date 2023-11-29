@@ -97,7 +97,7 @@ jobs:
 
       - name: Put a link to the issue in the workflow output
         if: env.lychee_exit_code != 0
-        with:
+        env:
           issue-number: ${{steps.create-issue.outputs.issue-number}}
         run: |
           echo "## Invalid URLs found" >> $GITHUB_STEP_SUMMARY
