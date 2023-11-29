@@ -43,7 +43,7 @@ jobs:
           args: --no-progress --exclude-mail --exclude-loopback --include-verbatim '*.md'
           debug: true
           format: markdown
-          jobSummary: false
+          jobSummary: true
 
       - name: Create a new issue for the broken links
         if: env.lychee_exit_code != 0
