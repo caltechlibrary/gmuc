@@ -2,8 +2,6 @@
 # @brief   GitHub Actions workflow to check the README file for broken links
 # @license Please see the file named LICENSE in the repository
 # @repo    https://github.com/caltechlibrary/iga
-#
-# Inspired by https://github.com/saver999/Broken-Links-Checker (2023-11-26).
 
 name: Test links in Markdown files
 run-name: Test for broken links in Markdown files after ${{github.event_name}} action by ${{github.actor}}
@@ -51,7 +49,8 @@ jobs:
           sed -e 's/^## Summary//' \
               -e 's/^|.*//g' \
               -e 's/^## Errors per input//' \
-              -e 's/{.*$/|/g' \
+              -e 's/{.*$//g' \
+              -e 's/| Failed:/– Failed:/g'
               -e 's/^\[Full Github.*//' \
               < lychee/out.md > lychee/report.md
 
@@ -62,3 +61,4 @@ jobs:
           token: ${{secrets.GITHUB_TOKEN}}
           title: Broken links in Markdown files
           content-filepath: ./lychee/report.md
+          labels: ${{env.labels}}
