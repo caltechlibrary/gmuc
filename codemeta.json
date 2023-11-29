@@ -1,9 +1,9 @@
 {
   "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
   "@type": "SoftwareSourceCode",
-  "name": "GitHub Markdown URL Checker",
-  "description": "GitHub Action workflow to report broken links in Markdown files",
-  "identifier": "gmuc",
+  "name": "Test Markdown Link Tester",
+  "description": "Testing a GitHub Action workflow for checking markdown links",
+  "identifier": "test-markdown-link-tester",
   "version": "0.0.0",
   "datePublished": "0000-00-00",
   "dateCreated": "2023-11-27",
