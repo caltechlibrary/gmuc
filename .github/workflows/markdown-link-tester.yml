@@ -26,7 +26,8 @@ env:
   files: '*.md'
 
   # List of URLs to ignore (e.g., because they're just examples in docs).
-  ignore_urls: ['https://ignore.ignore']
+  # Write all URLs in one string, with commas to separate URLs.
+  ignore_urls: 'https://ignore.ignore'
 
   # Label assigned to issues created by this workflow.
   labels: bug
