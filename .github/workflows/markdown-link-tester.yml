@@ -5,7 +5,7 @@
 #
 # Inspired by https://github.com/saver999/Broken-Links-Checker (2023-11-26).
 
-name: Markdown link tester
+name: Test links in Markdown files
 run-name: Test for broken links in Markdown files after ${{github.event_name}} action by ${{github.actor}}
 
 on:
