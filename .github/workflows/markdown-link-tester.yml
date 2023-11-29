@@ -43,7 +43,12 @@ jobs:
           args: --no-progress --exclude-mail --exclude-loopback --include-verbatim '*.md'
           debug: true
           format: markdown
-          JOBSUMMARY: false
+          jobSummary: false
+
+      - name: Post-process the output
+        if: env.lychee_exit_code != 0
+        run: |
+          sed -e 's/^## Summary//' < lychee/out.md > lychee/report.md
 
       - name: Create a new issue for the broken links
         if: env.lychee_exit_code != 0
@@ -51,4 +56,4 @@ jobs:
         with:
           token: ${{secrets.GITHUB_TOKEN}}
           title: Broken links in Markdown files
-          content-filepath: ./lychee/out.md
+          content-filepath: ./lychee/report.md
