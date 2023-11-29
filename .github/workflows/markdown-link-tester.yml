@@ -23,8 +23,8 @@ env:
   labels: bug
 
 jobs:
-  check-urls:
-    name: Check URLs in Markdown files
+  check-links:
+    name: Test link URLs
     runs-on: ubuntu-latest
     steps:
       - name: Check out source repository
@@ -55,5 +55,5 @@ jobs:
         uses: dacbd/create-issue-action@v1
         with:
           token: ${{secrets.GITHUB_TOKEN}}
-          title: Link Checker Report
-          body: $${steps.get_results.outputs.report}}
+          title: Broken links found in Markdown files
+          body: ${{steps.get_results.outputs.report}}
