@@ -91,11 +91,9 @@ jobs:
 
       - name: Report whether files needed to be tested
         if: steps.test-files-changed.outputs.changed != 'true'
-        env:
-          issue-number: ${{steps.create-issue.outputs.issue-number}}
         run: |
           echo "Link testing **skipped** because the latest commit did not change the relevant files." >> $GITHUB_STEP_SUMMARY
-          echo "(Files being tested: `${{env.files}}`)" >> $GITHUB_STEP_SUMMARY
+          echo "These were the files tested: <code>${{env.files}}</code>" >> $GITHUB_STEP_SUMMARY
 
   test-links:
     name: Test link URLs
