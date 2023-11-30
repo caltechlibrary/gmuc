@@ -69,14 +69,13 @@ on:
     paths:
       - .github/workflows/markdown-link-tester.yml
   workflow_dispatch:
-  repository_dispatch:
 
 jobs:
   check-files-changed:
     name: Check if files changed
     runs-on: ubuntu-latest
     outputs:
-      changed: ${{steps.test-files-changed.outputs.changed}}
+      changed: ${{steps.test-files-changed.outputs.changed}} == 'true' || ${{github.event_name}} == 'workflow_dispatch'
     steps:
       - name: Check out source repository
         uses: actions/checkout@v3
@@ -90,7 +89,7 @@ jobs:
           paths: ${{env.files}}
 
       - name: Report whether files needed to be tested
-        if: steps.test-files-changed.outputs.changed != 'true'
+        if: steps.test-files-changed.outputs.changed != 'true' && github.event_name != 'workflow_dispatch'
         run: |
           echo "Link testing **skipped** because the latest commit did not change the relevant files." >> $GITHUB_STEP_SUMMARY
           echo "The files tested were the following: <code>${{env.files}}</code>" >> $GITHUB_STEP_SUMMARY
