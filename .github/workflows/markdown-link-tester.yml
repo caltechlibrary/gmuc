@@ -8,10 +8,16 @@
 # files in the repository where this workflow is installed. If any URLs
 # are invalid, this opens an issue in the repository, with the issue
 # body containing a list of files and URLs that have errors in them.
+# Only URLs using the scheme https or http are tested.
 #
-# It is not advisable to run this workflow on every push. Instead, this
-# workflow is configured to run once a day, and also when pull requests.
-# are made. It can also be invoked manually from the GitHub Actions tab.
+# It is not advisable to run this workflow on every push, because during
+# intense sessions of writing and testing, it often results in opening
+# multiple issues for the same file(s) and URLs before one realizes what's
+# happened. Instead, this workflow is configured to run:
+#  - once a day
+#  - when pull requests are made on files ending in .md
+#  - when this workflow file is edited (markdown-link-tester.yml)
+# It can also be invoked manually when needed from the GitHub Actions tab.
 #
 # This workflow assigns a label to the GitHub issue it creates. The default
 # label is "bug"; this can be adjusted by setting the value in the "env"
@@ -23,13 +29,11 @@
 
 env:
   # Markdown files examined by the workflow. Can be a comma-separated list.
-  # Example: '*.md'
   files: '*.md'
 
-  # List of URLs to ignore (e.g., because they're just examples in docs).
-  # Write all URLs in one string, with commas to separate URLs.
-  # Example: 'https://foo.bar,https://bar.biff'
-  ignore_urls: ''
+  # File containing a list of URLs to ignore, one per line.
+  # Path is relative to the root of the repository.
+  ignore_list: '.github/workflows/ignored-urls.txt'
 
   # Label assigned to issues created by this workflow.
   labels: 'bug'
@@ -41,7 +45,7 @@ env:
 # Implementation notes:
 # - This purposefully doesn't use lychee's caching facility, because turning
 #   on that feature results in lychee not reporting the original error
-#   message when a cached URL is encountered. This is very unhelpful.
+#   when a cached URL is encountered. This is very unhelpful in this context.
 #
 # - More information about optional settings for the lychee-action GHA can
 #   be found at https://github.com/lycheeverse/lychee-action
@@ -52,18 +56,14 @@ run-name: Test for broken links in Markdown files
 on:
   schedule:
     - cron: "00 11 * * *"
-  workflow_dispatch:
-    paths:
-      - '*.md'
-  repository_dispatch:
-    paths:
-      - '*.md'
   pull_request:
     paths:
-      - '*.md'
+      - '**.md'
   push:
     paths:
       - .github/workflows/markdown-link-tester.yml
+  workflow_dispatch:
+  repository_dispatch:
 
 jobs:
   test-links:
@@ -75,17 +75,14 @@ jobs:
 
       - name: Configure link checker
         run: |
-          touch .lycheeignore
-          if [ -n "${{env.ignore_urls}}" ]; then
-            for url in ${{env.ignore_urls}}; do
-              echo "$url" >> .lycheeignore
-            done
+          if [ -e ${{env.ignore_list}} ]; then
+            cp -f ${{env.ignore_list}} .lycheeignore
           fi
 
       - name: Test URLs found inside Markdown files
         uses: lycheeverse/lychee-action@v1.8.0
         with:
-          args: --no-progress --exclude-mail --exclude-loopback --include-verbatim ${{env.files}}
+          args: --no-progress --scheme https --scheme http --exclude-mail --exclude-loopback --include-verbatim ${{env.files}}
           debug: false
           format: markdown
           jobSummary: false
