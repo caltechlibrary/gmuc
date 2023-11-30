@@ -16,8 +16,14 @@
 # happened. Instead, this workflow is configured to run:
 #  - once a day
 #  - when pull requests are made on files ending in .md
-#  - when this workflow file is edited (markdown-link-tester.yml)
+#  - when this workflow file itself is edited (markdown-link-tester.yml)
 # It can also be invoked manually when needed from the GitHub Actions tab.
+#
+# This workflow includes a configuration variable for listing URLs that
+# should be ignored when encountered. This is useful when some of your files
+# contain fake URLs used as examples in documentation. The URLs must be
+# listed one per line. They can be written as regular expresions; e.g.,
+#   https://example\.(com|org)
 #
 # This workflow assigns a label to the GitHub issue it creates. The default
 # label is "bug"; this can be adjusted by setting the value in the "env"
