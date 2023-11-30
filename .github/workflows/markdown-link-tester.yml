@@ -73,7 +73,7 @@ on:
 
 jobs:
   check-files-changed:
-    name: Check if files changed in latest commit
+    name: Check if files changed
     runs-on: ubuntu-latest
     outputs:
       changed: ${{steps.test-files-changed.outputs.changed}}
@@ -87,7 +87,7 @@ jobs:
         uses: MarceloPrado/has-changed-path@v1.0.1
         id: test-files-changed
         with:
-          path: ${{env.files}}
+          paths: ${{env.files}}
 
       - name: Report whether files needed to be tested
         if: steps.test-files-changed.outputs.changed != 'true'
