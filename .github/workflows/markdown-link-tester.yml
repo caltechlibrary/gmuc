@@ -96,10 +96,10 @@ jobs:
           echo "These were the files tested: <code>${{env.files}}</code>" >> $GITHUB_STEP_SUMMARY
 
   test-links:
-    name: Test link URLs
+    name: Check links in Markdown files
+    if: needs.check-files-changed.outputs.changed == 'true'
     runs-on: ubuntu-latest
     needs: check-files-changed
-    if: ${{needs.check-files-changed.outputs.changed}} == 'true'
     steps:
       - name: Configure link checker
         run: |
