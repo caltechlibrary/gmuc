@@ -95,14 +95,14 @@ jobs:
 
       - name: Post-process the output
         if: env.lychee_exit_code != 0
-        # Edit the output to remove needless bits and improve formatting.
+        # Edit lychee's output to remove needless bits and improve formatting.
         run: |
           sed -e 's/^## Summary//' \
               -e 's/^|.*//g' \
               -e 's/^## Errors per input//' \
               -e 's/{.*$//g' \
               -e 's/| Failed:/– Failed:/g' \
-              -e 's/^\[Full Github.*//' \
+              -e 's/\(^\[Full Github.*\)/<br>\1/' \
               -e 's/\(.*\)\[\(.*\)\]\(.*\)/\1[`\2`]\3/' \
               < lychee/out.md > lychee/report.md
 
